@@ -40,26 +40,30 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines
 mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URI);
 // Routes
+const newYorkerSite = "https://www.newyorker.com/science/elements";
 
 // A GET route for scraping the echoJS website
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with request
-  axios.get("https://www.reddit.com/").then(function(response) {
+  axios.get(newYorkerSite).then(function(response) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(response.data);
 
     // Now, we grab every h2 within an article tag, and do the following:
-    $("article h2").each(function(i, element) {
+    $("div.River__riverItemContent___2hXMG").each(function(i, element) {
       // Save an empty result object
-      var result = {};
+      let result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this)
-        .children("a")
+      result.title = $(element)
+        .find(".River__hed___re6RP")
         .text();
-      result.link = $(this)
-        .children("a")
+      result.link = "https://www.newyorker.com/" + $(element)
+        .children()
         .attr("href");
+      result.desc = $(element)
+        .find(".River__dek___CayIg")
+        .text();
 
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
@@ -71,8 +75,9 @@ app.get("/scrape", function(req, res) {
           // If an error occurred, send it to the client
           return res.json(err);
         });
+    console.log(result);
     });
-
+    
     // If we were able to successfully scrape and save an Article, send a message to the client
     res.send("Scrape Complete");
   });
