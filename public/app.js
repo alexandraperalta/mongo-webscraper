@@ -1,13 +1,13 @@
-// Grab the articles as a json
+// Get articles
 $.getJSON("/articles", function (data) {
   // For each one
   for (var i = 0; i < data.length; i++) {
-    // Display the apropos information on the page
-    $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>");
-    $("#articles").append("<p><button data-id='" + data[i]._id + "' data-toggle='modal' data-target='#commentsModal' id='getComments'>Get Comments</button></p>");
+    // Display
+    $("#articles").append("<p class='articleCard' data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>");
+    $("#articles").append("<p><button data-id='" + data[i]._id + "' data-toggle='modal' data-target='#commentsModal' id='getComments'>Make a Comment</button></p>");
   }
 });
-//Whenever someone clicks Comments button
+
 $(document).on("click", "#getComments", function () {
   var thisId = $(this).attr("data-id");
   $("#commentsModalBody").empty();
@@ -18,8 +18,9 @@ $(document).on("click", "#getComments", function () {
     $("#commentsTitle").text(data.title);
     $("#commentsModalBody").append("<textarea id='bodyinput' name='body'></textarea>");
     // A button to submit a new note, with the id of the article saved to it
-    $("#commentsModalBody").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
+    $("#commentsModalBody").append("<button data-id='" + data._id + "' id='savenote' data-dismiss='modal'>Save Note</button>");    
   });
+  
 });
 // When you click the savenote button
 $(document).on("click", "#savenote", function () {
@@ -37,9 +38,7 @@ $(document).on("click", "#savenote", function () {
   })
     // With that done
     .then(function (data) {
-      // Log the response
-      console.log(data);
-      
+      getCommentsById(data._id);      
     });
 
   // Also, remove the values entered in the input and textarea for note entry
@@ -48,11 +47,9 @@ $(document).on("click", "#savenote", function () {
 });
 
 // Whenever someone clicks a p tag
-$(document).on("click", "p", function () {
-  
+$(document).on("click", ".articleCard", function () {  
   // Save the id from the p tag
   var thisId = $(this).attr("data-id");
-
   getCommentsById(thisId);
 });
 
