@@ -42,7 +42,7 @@ mongoose.connect(MONGODB_URI);
 // Routes
 const newYorkerSite = "https://www.newyorker.com/science/elements";
 
-// A GET route for scraping the echoJS website
+// A GET route for scraping the new yorker website
 app.get("/scrape", function (req, res) {
   // First, we grab the body of the html with request
   axios.get(newYorkerSite).then(function (response) {
@@ -64,6 +64,15 @@ app.get("/scrape", function (req, res) {
       result.desc = $(element)
         .find(".River__dek___CayIg")
         .text();
+      result.img = $(element)
+        .find("img")
+        .attr("src");
+      result.byline = $(element)
+        .find(".Byline__by___37lv8")
+        .text();
+      result.publishedDate = $(element)
+        .find(".River__publishDate___1fSSK")
+        .text();  
 
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
@@ -80,6 +89,16 @@ app.get("/scrape", function (req, res) {
 
     // If we were able to successfully scrape and save an Article, send a message to the client
     res.send("Scrape Complete");
+  });
+});
+
+app.get("/", function(req, res){
+  db.Article.find({}).then(function(dbArticle){
+    var hbsObject = {
+      articles: dbArticle
+    };
+    console.log(hbsObject);
+    res.render("index", hbsObject);
   });
 });
 
