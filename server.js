@@ -64,9 +64,11 @@ app.get("/scrape", function (req, res) {
       result.desc = $(element)
         .find(".River__dek___CayIg")
         .text();
-      result.img = $(element)
-        .find("img")
-        .attr("src");
+      imageUrl = $(element)
+      .find(".component-responsive-image source ")
+      .attr("srcset");;
+      result.img = imageUrl
+        .substring(0, imageUrl.indexOf(" ")-1);
       result.byline = $(element)
         .find(".Byline__by___37lv8")
         .text();
